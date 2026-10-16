@@ -1,0 +1,7 @@
+name = "lampa-zetflix"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+# [vars]
+# TOKEN = "change-me"
+# ZETFLIX_BASE = "https://hdi.zetflix.online"
