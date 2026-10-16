@@ -173,7 +173,12 @@ export function parsePage(html) {
 
     const start = html.indexOf('new Playerjs')
 
-    if (start === -1) return { ok: false, error: 'player not found' }
+    if (start === -1) {
+        // no video: zetflix shows a fake player linking to an external site (target="_top")
+        if (/hero__link|target="_top"/.test(html)) return { ok: false, error: 'not_found' }
+
+        return { ok: false, error: 'player not found', sample: pageSample(html) }
+    }
 
     const titleMatch = html.match(/<title>([^<]*)<\/title>/i)
     const title = titleMatch ? decodeEntities(titleMatch[1].trim()) : ''
@@ -321,6 +326,17 @@ function uniqueName(list, name) {
     while (list.some(v => v.name === result)) result = name + ' (' + (n++) + ')'
 
     return result
+}
+
+// readable start of an unexpected page, for diagnostics
+function pageSample(html) {
+    return html
+        .replace(/<script[\s\S]*?(<\/script>|$)/gi, ' ')
+        .replace(/<style[\s\S]*?(<\/style>|$)/gi, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 300) + ' [' + html.length + ' bytes]'
 }
 
 function decodeEntities(str) {
