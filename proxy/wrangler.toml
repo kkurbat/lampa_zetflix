@@ -4,4 +4,4 @@ compatibility_date = "2025-01-01"
 
 # [vars]
 # TOKEN = "change-me"
-# ZETFLIX_BASE = "https://hdi.zetflix.online"
+# FILMIX_API = "http://filmixapp.cyou/api/v2/"

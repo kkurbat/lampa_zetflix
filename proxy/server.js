@@ -1,5 +1,5 @@
 // Local / VPS runner for worker.js (Node 18+): node proxy/server.js
-// Env: PORT (default 8787), TOKEN, ZETFLIX_BASE
+// Env: PORT (default 8787), TOKEN, FILMIX_API
 import http from 'node:http'
 import worker from './worker.js'
 
@@ -12,5 +12,5 @@ http.createServer(async (req, res) => {
     res.writeHead(response.status, Object.fromEntries(response.headers))
     res.end(Buffer.from(await response.arrayBuffer()))
 }).listen(port, () => {
-    console.log('zetflix proxy on http://localhost:' + port + '/?kp=301')
+    console.log('filmix proxy on http://localhost:' + port + '/filmix/search?story=matrix')
 })
