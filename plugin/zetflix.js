@@ -787,19 +787,19 @@
 
         Lampa.SettingsApi.addParam({
             component: COMPONENT,
-            param: { name: 'zetflix_proxy', type: 'input', values: '', default: '' },
+            param: { name: 'zetflix_proxy', type: 'input', values: '', default: '', placeholder: 'https://lampa-zetflix.you.workers.dev' },
             field: { name: Lampa.Lang.translate('zetflix_proxy_title'), description: Lampa.Lang.translate('zetflix_proxy_descr') }
         });
 
         Lampa.SettingsApi.addParam({
             component: COMPONENT,
-            param: { name: 'zetflix_token', type: 'input', values: '', default: '' },
+            param: { name: 'zetflix_token', type: 'input', values: '', default: '', placeholder: '' },
             field: { name: Lampa.Lang.translate('zetflix_token_title'), description: Lampa.Lang.translate('zetflix_token_descr') }
         });
 
         Lampa.SettingsApi.addParam({
             component: COMPONENT,
-            param: { name: 'zetflix_kp_key', type: 'input', values: '', default: '' },
+            param: { name: 'zetflix_kp_key', type: 'input', values: '', default: '', placeholder: '' },
             field: { name: Lampa.Lang.translate('zetflix_kpkey_title'), description: Lampa.Lang.translate('zetflix_kpkey_descr') }
         });
     }
