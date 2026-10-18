@@ -7,9 +7,10 @@
  *
  * Runs as a Cloudflare Worker (export default { fetch }) or under Node 18+ via ./server.js.
  *
- * API (only these two methods are relayed):
+ * API (only these methods are relayed):
  *   GET /filmix/search?story=<query>&<user_dev params>[&token=<secret>]
  *   GET /filmix/post/<id>?<user_dev params>[&token=<secret>]
+ *   GET /filmix/user_profile?<user_dev params>[&token=<secret>]   - PRO status for user_dev_token
  *
  * Env (optional):
  *   FILMIX_API  - default http://filmixapp.cyou/api/v2/
@@ -17,7 +18,7 @@
  */
 
 const DEFAULT_API = 'http://filmixapp.cyou/api/v2/'
-const ALLOWED = /^(search|post\/\d+)$/
+const ALLOWED = /^(search|post\/\d+|user_profile)$/
 
 export default {
     async fetch(request, env) {

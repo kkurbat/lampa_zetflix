@@ -7,6 +7,7 @@
 
     var VERSION = '2.0.0';
     var COMPONENT = 'filmix_online';
+    var FREE_MAX_QUALITY = 720;
 
     /* ---------------- lang ---------------- */
 
@@ -156,10 +157,12 @@
         return sorted;
     }
 
-    // default link: the user's preferred quality from Lampa settings or the closest lower one
-    function pickUrl(map) {
+    // default link: the user's preferred quality from Lampa settings (capped by `max`) or the closest lower one
+    function pickUrl(map, max) {
         var keys = Object.keys(sortQualities(map));
         var prefer = parseInt(Lampa.Storage.field('video_quality_default'), 10) || 1080;
+
+        if (max) prefer = Math.min(prefer, max);
 
         for (var i = 0; i < keys.length; i++) {
             if (qualityNumber(keys[i]) <= prefer) return map[keys[i]];
@@ -208,6 +211,8 @@
 
     /* ---------------- api ---------------- */
 
+    var proCache = {};
+
     function FilmixApi(network) {
         var dev = storageString('filmix_online_device');
 
@@ -247,6 +252,26 @@
             }, fail);
         };
 
+        // PRO status of the Filmix token, cached per token for the session
+        this.isPro = function (done) {
+            var token = storageString('filmix_online_user_token');
+
+            if (!token) return done(false);
+
+            if (proCache.token === token) return done(proCache.pro);
+
+            network.timeout(10000);
+            network.silent(url('user_profile'), function (json) {
+                var user = json && json.user_data;
+
+                proCache = { token: token, pro: !!(user && (user.is_pro || user.is_pro_plus)) };
+
+                done(proCache.pro);
+            }, function () {
+                done(false);
+            });
+        };
+
         this.post = function (id, done, fail) {
             network.timeout(15000);
             network.silent(url('post/' + id), done, fail);
@@ -264,6 +289,7 @@
         var api = new FilmixApi(network);
 
         var serial = isSerial(object.movie);
+        var pro = false;
         var initialized = false;
         var last = false;
         var data = null;
@@ -361,11 +387,17 @@
         this.start_search = function () {
             if (api.blocked()) return this.empty(Lampa.Lang.translate('filmix_online_need_proxy'));
 
-            var id = savedFilmixId();
+            this.loading(true);
 
-            if (id) return this.load(id);
+            api.isPro(function (status) {
+                pro = status;
 
-            this.find(movieTitle(object.movie) || object.search, false);
+                var id = savedFilmixId();
+
+                if (id) return self.load(id);
+
+                self.find(movieTitle(object.movie) || object.search, false);
+            });
         };
 
         /* ---------- search ---------- */
@@ -703,7 +735,8 @@
         this.toPlayer = function (item) {
             return {
                 title: serial ? (object.movie.name || '') + ' / ' + item.title : (object.movie.title || '') + ' / ' + item.voice_name,
-                url: pickUrl(item.qualities),
+                // without PRO the default quality is capped at 720p; higher ones stay in the player's quality menu
+                url: pickUrl(item.qualities, pro ? 0 : FREE_MAX_QUALITY),
                 quality: sortQualities(item.qualities),
                 timeline: item.timeline,
                 callback: item.mark
